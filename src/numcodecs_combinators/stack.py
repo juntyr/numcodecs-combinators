@@ -151,6 +151,9 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             out = np.empty(shape=shape, dtype=dtype)
             decoded = codec.decode(decoded, out).reshape(shape)
 
+        if isinstance(decoded, type(buf)):
+            return decoded
+
         return type(buf)(decoded)  # type: ignore
 
     def get_config(self) -> dict:
