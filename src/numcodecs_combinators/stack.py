@@ -196,8 +196,8 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
 
     def map(self, mapper: Callable[[Codec], Codec]) -> "CodecStack":
         """
-        Apply the `mapper` to all codecs that are in this stack, returning a
-        new stack where each codec is replaced by its mapped codec.
+        Apply the `mapper` to all codecs that are in this stack.
+        In the returned stack, each codec is replaced by its mapped codec.
 
         The `mapper` should recursively apply itself to any inner codecs that
         also implement the [`CodecCombinatorMixin`][numcodecs_combinators.abc.CodecCombinatorMixin]
