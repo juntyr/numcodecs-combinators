@@ -6,7 +6,7 @@ The following combinators, implementing the [`CodecCombinatorMixin`][numcodecs_c
 - [`CodecStack`][numcodecs_combinators.stack.CodecStack]: a stack of codecs
 """
 
-__all__ = ["abc", "stack", "map_codec"]
+__all__ = ["map_codec"]
 
 import functools
 from typing import Callable
