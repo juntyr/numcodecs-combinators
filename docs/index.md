@@ -8,7 +8,9 @@
 
 Combinator codecs for the [`numcodecs`][numcodecs] buffer compression API.
 
-- [`CodecStack`][numcodecs_combinators.CodecStack]: a stack of codecs
+The following combinators, implementing the [`CodecCombinatorMixin`][numcodecs_combinators.abc.CodecCombinatorMixin] are provided:
+
+- [`CodecStack`][numcodecs_combinators.stack.CodecStack]: a stack of codecs
 
 ## Funding
 

@@ -1,7 +1,8 @@
 import numcodecs
 import numpy as np
 
-from numcodecs_combinators import CodecStack
+import numcodecs_combinators
+from numcodecs_combinators.stack import CodecStack
 
 
 def assert_config_roundtrip(codec: numcodecs.abc.Codec):
@@ -39,3 +40,27 @@ def test_encode_decode():
 
     encoded_decoded = stack.encode_decode(b"abc")
     assert encoded_decoded == b"abc"
+
+
+def test_map():
+    stack = CodecStack(numcodecs.Zlib(level=9), numcodecs.CRC32())
+
+    mapped = numcodecs_combinators.map_codec(stack, lambda c: c)
+    assert mapped == stack
+
+    mapped = numcodecs_combinators.map_codec(stack, lambda c: CodecStack(c))
+    assert mapped == CodecStack(
+        CodecStack(CodecStack(numcodecs.Zlib(level=9)), CodecStack(numcodecs.CRC32()))
+    )
+
+    mapped = numcodecs_combinators.map_codec(mapped, lambda c: CodecStack(c))
+    assert mapped == CodecStack(
+        CodecStack(
+            CodecStack(
+                CodecStack(
+                    CodecStack(CodecStack(CodecStack(numcodecs.Zlib(level=9)))),
+                    CodecStack(CodecStack(CodecStack(numcodecs.CRC32()))),
+                )
+            )
+        )
+    )

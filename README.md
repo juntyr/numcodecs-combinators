@@ -8,6 +8,8 @@
 
 Combinator codecs for the [`numcodecs`] buffer compression API.
 
+The following combinators, implementing the `CodecCombinatorMixin` are provided:
+
 - `CodecStack`: a stack of codecs
 
 [`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/

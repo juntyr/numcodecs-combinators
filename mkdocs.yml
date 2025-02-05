@@ -15,23 +15,19 @@ theme:
 
 nav:
   - Home: index.md
-  - Documentation: api/
   - Links:
       - GitHub: https://github.com/juntyr/numcodecs-combinators
       - PyPI: https://pypi.org/project/numcodecs-combinators/
 
 plugins:
-  - gen-files:
-      scripts:
-        - docs/generate_api.py
-  - literate-nav:
-      nav_file: SUMMARY.md
+  - mkdocstrings-python-generator:
+      source_dirs:
+        - nav_heading: [Documentation]
+          base: src
   - exclude:
       glob:
-        - generate_api.py
         - requirements.txt
   - search
-  - include-markdown
   - mkdocstrings:
       enable_inventory: true
       handlers:
@@ -56,6 +52,6 @@ plugins:
                   classes: true
                   functions: true
                   modules: true
-          import:
+          inventories:
             - https://docs.python.org/3.12/objects.inv
             - https://numcodecs.readthedocs.io/en/v0.13.0/objects.inv
