@@ -163,7 +163,7 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
 
     def encode_decode_data_array(self, da: "xr.DataArray") -> "xr.DataArray":
         """
-        Encode, then decode the data in `da`.
+        Encode, then decode the data array in `da`.
 
         The encode-decode computation may be deferred until the
         [`compute`][xarray.DataArray.compute] method is called on the result.
