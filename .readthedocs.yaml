@@ -12,4 +12,6 @@ python:
    install:
    - method: pip
      path: .
+     extra_requirements:
+      - xarray
    - requirements: docs/requirements.txt

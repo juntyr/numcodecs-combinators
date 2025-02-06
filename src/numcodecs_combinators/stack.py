@@ -4,13 +4,18 @@ This module defines the [`CodecStack`][numcodecs_combinators.stack.CodecStack] c
 
 __all__ = ["CodecStack"]
 
-from collections.abc import Buffer
-from typing import Optional, Self, Callable
+from typing import Optional, Callable
+from typing_extensions import Buffer, Self  # MSPV 3.12
 
 import numcodecs
 import numcodecs.compat
 import numcodecs.registry
 import numpy as np
+
+try:
+    import xarray as xr
+except ImportError:
+    pass
 
 from numcodecs.abc import Codec
 
@@ -52,7 +57,7 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
 
     __slots__ = ()
 
-    codec_id = "combinators.stack"
+    codec_id: str = "combinators.stack"  # type: ignore
 
     def __init__(self, *args: tuple[(dict | Codec), ...]):
         pass
@@ -155,6 +160,45 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             return decoded
 
         return type(buf)(decoded)  # type: ignore
+
+    def encode_decode_data_array(self, da: "xr.DataArray") -> "xr.DataArray":
+        """
+        Encode, then decode the data in `da`.
+
+        The encode-decode computation may be deferred until the
+        [`compute`][xarray.DataArray.compute] method is called on the result.
+
+        This method requires the optional [`xarray`][xarray] dependency to be
+        installed.
+
+        Parameters
+        ----------
+        da : xr.DataArray
+            Data to be encoded.
+
+        Returns
+        -------
+        dec : xr.DataArray
+            Decoded data.
+        """
+
+        import xarray as xr
+
+        def encode_decode_data_array_single_chunk(
+            da: xr.DataArray,
+        ) -> xr.DataArray:
+            single_chunk = {dim: -1 for dim in da.dims}
+
+            # return early for zero-sized arrays
+            if da.size == 0:
+                return da.copy(deep=False).chunk(single_chunk)
+
+            # eagerly compute the input chunk and encode and decode it
+            decoded = self.encode_decode(da.values)  # type: ignore
+
+            return da.copy(deep=False, data=decoded).chunk(single_chunk)
+
+        return xr.map_blocks(encode_decode_data_array_single_chunk, da)
 
     def get_config(self) -> dict:
         """

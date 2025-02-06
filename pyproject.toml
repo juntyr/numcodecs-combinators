@@ -4,12 +4,17 @@ build-backend = "hatchling.build"
 
 [project]
 name = "numcodecs-combinators"
-version = "0.2.1"
+version = "0.2.2"
 description = "Combinator codecs for the `numcodecs` buffer compression API"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.12"
-dependencies = ["numcodecs~=0.13", "numpy~=2.2"]
+requires-python = ">=3.10"
+dependencies = [
+    "numcodecs>=0.13.0,<0.15",
+    "numpy~=2.0",
+    "typing-extensions~=4.6",
+]
+optional-dependencies.xarray = [ "xarray>=2024.06", "dask>=2024.6" ]
 
 [dependency-groups]
 dev = ["mypy~=1.14", "pytest~=8.3"]

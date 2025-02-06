@@ -1,5 +1,6 @@
 import numcodecs
 import numpy as np
+import xarray as xr
 
 import numcodecs_combinators
 from numcodecs_combinators.stack import CodecStack
@@ -40,6 +41,14 @@ def test_encode_decode():
 
     encoded_decoded = stack.encode_decode(b"abc")
     assert encoded_decoded == b"abc"
+
+    encoded_decoded = stack.encode_decode_data_array(xr.DataArray([1.0, 2.0, 3.0]))
+    assert encoded_decoded.equals(xr.DataArray([1.0, 2.0, 3.0]))
+
+    encoded_decoded = stack.encode_decode_data_array(
+        xr.DataArray([1.0, 2.0, 3.0]).chunk(1)
+    )
+    assert encoded_decoded.equals(xr.DataArray([1.0, 2.0, 3.0]))
 
 
 def test_map():
