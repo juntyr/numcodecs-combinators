@@ -59,10 +59,10 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
 
     codec_id: str = "combinators.stack"  # type: ignore
 
-    def __init__(self, *args: tuple[(dict | Codec), ...]):
+    def __init__(self, *args: dict | Codec):
         pass
 
-    def __new__(cls, *args: tuple[(dict | Codec), ...]) -> Self:
+    def __new__(cls, *args: dict | Codec) -> Self:
         return super(CodecStack, cls).__new__(
             cls,
             tuple(
@@ -269,16 +269,16 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             The mapped codec stack.
         """
 
-        return CodecStack(*map(mapper, self))  # type: ignore
+        return CodecStack(*map(mapper, self))
 
     def __add__(self, other) -> "CodecStack":
-        return CodecStack(*tuple.__add__(self, other))  # type: ignore
+        return CodecStack(*tuple.__add__(self, other))
 
     def __mul__(self, other) -> "CodecStack":
-        return CodecStack(*tuple.__mul__(self, other))  # type: ignore
+        return CodecStack(*tuple.__mul__(self, other))
 
     def __rmul__(self, other) -> "CodecStack":
-        return CodecStack(*tuple.__rmul__(self, other))  # type: ignore
+        return CodecStack(*tuple.__rmul__(self, other))
 
 
 numcodecs.registry.register_codec(CodecStack)
