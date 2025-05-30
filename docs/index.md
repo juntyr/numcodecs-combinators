@@ -11,6 +11,7 @@ Combinator codecs for the [`numcodecs`][numcodecs] buffer compression API.
 The following combinators, implementing the [`CodecCombinatorMixin`][numcodecs_combinators.abc.CodecCombinatorMixin] are provided:
 
 - [`CodecStack`][numcodecs_combinators.stack.CodecStack]: a stack of codecs
+- [`FramedCodecStack`][numcodecs_combinators.framed.FramedCodecStack]: a stack of codecs that is framed with array data type and shape information
 
 ## Funding
 

@@ -13,6 +13,7 @@ dependencies = [
     "numcodecs>=0.13.0,<0.17",
     "numpy~=2.0",
     "typing-extensions~=4.6",
+    "varint~=1.0",
 ]
 optional-dependencies.xarray = [ "xarray>=2024.06", "dask>=2024.6" ]
 
@@ -21,6 +22,7 @@ dev = ["mypy~=1.14", "pytest~=8.3"]
 
 [project.entry-points."numcodecs.codecs"]
 "combinators.stack" = "numcodecs_combinators.stack:CodecStack"
+"combinators.framed" = "numcodecs_combinators.framed:FramedCodecStack"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -28,6 +30,13 @@ where = ["src"]
 [tool.setuptools.package-data]
 "numcodecs_combinators" = ["py.typed"]
 
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib"]
+xfail_strict = true
+
 [[tool.mypy.overrides]]
-module = ["numcodecs.*"]
+module = ["numcodecs.*", "varint.*"]
 follow_untyped_imports = true

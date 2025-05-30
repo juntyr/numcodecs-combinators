@@ -4,13 +4,13 @@ This module defines the [`CodecStack`][numcodecs_combinators.stack.CodecStack] c
 
 __all__ = ["CodecStack"]
 
-from typing import Optional, Callable
-from typing_extensions import Buffer, Self  # MSPV 3.12
+from typing import Callable, Optional
 
 import numcodecs
 import numcodecs.compat
 import numcodecs.registry
 import numpy as np
+from typing_extensions import Buffer, Self  # MSPV 3.12
 
 try:
     import xarray as xr
@@ -140,13 +140,17 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             buffer protocol.
         """
 
-        encoded = numcodecs.compat.ensure_contiguous_ndarray_like(buf, flatten=False)
+        encoded = np.asarray(
+            numcodecs.compat.ensure_contiguous_ndarray_like(buf, flatten=False)
+        )
         silhouettes = []
 
         for codec in self:
-            silhouettes.append((encoded.shape, np.dtype(encoded.dtype.name)))
-            encoded = numcodecs.compat.ensure_contiguous_ndarray_like(
-                codec.encode((encoded)), flatten=False
+            silhouettes.append((encoded.shape, encoded.dtype))
+            encoded = np.asarray(
+                numcodecs.compat.ensure_contiguous_ndarray_like(
+                    codec.encode((encoded)), flatten=False
+                )
             )
 
         decoded = encoded
@@ -154,7 +158,7 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
         for codec in reversed(self):
             shape, dtype = silhouettes.pop()
             out = np.empty(shape=shape, dtype=dtype)
-            decoded = codec.decode(decoded, out).reshape(shape)
+            decoded = codec.decode(decoded, out).view(dtype).reshape(shape)
 
         if isinstance(decoded, type(buf)):
             return decoded

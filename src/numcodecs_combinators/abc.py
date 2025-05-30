@@ -4,11 +4,10 @@ This module defines the [`CodecCombinatorMixin`][numcodecs_combinators.abc.Codec
 
 __all__ = ["CodecCombinatorMixin"]
 
+from abc import ABC, abstractmethod
 from typing import Callable
 
 from numcodecs.abc import Codec
-
-from abc import ABC, abstractmethod
 
 
 class CodecCombinatorMixin(ABC):

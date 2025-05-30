@@ -1,9 +1,13 @@
 """
 Combinator codecs for the [`numcodecs`][numcodecs] buffer compression API.
 
-The following combinators, implementing the [`CodecCombinatorMixin`][numcodecs_combinators.abc.CodecCombinatorMixin] are provided:
+The following combinators, implementing the
+[`CodecCombinatorMixin`][numcodecs_combinators.abc.CodecCombinatorMixin] are
+provided:
 
 - [`CodecStack`][numcodecs_combinators.stack.CodecStack]: a stack of codecs
+- [`FramedCodecStack`][numcodecs_combinators.framed.FramedCodecStack]: a stack
+  of codecs that is framed with array data type and shape information
 """
 
 __all__ = ["map_codec"]
@@ -14,6 +18,7 @@ from typing import Callable
 from numcodecs.abc import Codec
 
 from . import abc as abc
+from . import framed as framed
 from . import stack as stack
 
 
