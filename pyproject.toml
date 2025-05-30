@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "numcodecs-combinators"
-version = "0.2.6"
+version = "0.2.7"
 description = "Combinator codecs for the `numcodecs` buffer compression API"
 readme = "README.md"
 license = { file = "LICENSE" }
