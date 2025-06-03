@@ -28,8 +28,8 @@ class FramedCodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
     intermediary, encoded) are stored as part of the encoding, which is output
     as a bytestring.
 
-    On deconding, this framing information is used to apply the codecs from
-    right to left to decode into known ouput data types and shapes.
+    On decoding, this framing information is used to apply the codecs from
+    right to left to decode into known output data types and shapes.
 
     Therefore, the [`FramedCodecStack`][numcodecs_combinators.framed.FramedCodecStack]
     can be used to combine codecs which require knowing the output data type
