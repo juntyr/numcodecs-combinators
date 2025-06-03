@@ -167,7 +167,14 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
 
     def encode_decode_data_array(self, da: "xr.DataArray") -> "xr.DataArray":
         """
-        Encode, then decode the data array in `da`.
+        Encode, then decode each chunk (independently) in the data array `da`.
+
+        Since each chunk is encoded *independently*, this method may cause
+        chunk boundary artifacts. Do *not* use this method if the codec
+        requires access to the entire data at once or if it needs to access
+        a neighbourhood of points across the chunk boundary. In these cases,
+        it is preferable to use
+        `da.copy(data=stack.encode_decode(da.values))` instead.
 
         The encode-decode computation may be deferred until the
         [`compute`][xarray.DataArray.compute] method is called on the result.
