@@ -21,8 +21,9 @@ optional-dependencies.xarray = [ "xarray>=2024.06", "dask>=2024.6" ]
 dev = ["mypy~=1.14", "pytest~=8.3"]
 
 [project.entry-points."numcodecs.codecs"]
-"combinators.stack" = "numcodecs_combinators.stack:CodecStack"
+"combinators.best" = "numcodecs_combinators.best:PickBestCodec"
 "combinators.framed" = "numcodecs_combinators.framed:FramedCodecStack"
+"combinators.stack" = "numcodecs_combinators.stack:CodecStack"
 
 [tool.setuptools.packages.find]
 where = ["src"]

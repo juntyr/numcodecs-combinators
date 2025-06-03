@@ -12,6 +12,7 @@ The following combinators, implementing the `CodecCombinatorMixin` are provided:
 
 - `CodecStack`: a stack of codecs
 - `FramedCodecStack`: a stack of codecs that is framed with array data type and shape information
+- `PickBestCodec`: pick the best codec to encode the data
 
 [`numcodecs`]: https://numcodecs.readthedocs.io/en/stable/
 

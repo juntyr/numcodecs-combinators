@@ -8,6 +8,8 @@ provided:
 - [`CodecStack`][numcodecs_combinators.stack.CodecStack]: a stack of codecs
 - [`FramedCodecStack`][numcodecs_combinators.framed.FramedCodecStack]: a stack
   of codecs that is framed with array data type and shape information
+- [`PickBestCodec`][numcodecs_combinators.best.PickBestCodec]: pick the best
+  codec to encode the data
 """
 
 __all__ = ["map_codec"]
@@ -18,6 +20,7 @@ from typing import Callable
 from numcodecs.abc import Codec
 
 from . import abc as abc
+from . import best as best
 from . import framed as framed
 from . import stack as stack
 
