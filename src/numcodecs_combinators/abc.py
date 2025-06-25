@@ -15,6 +15,8 @@ class CodecCombinatorMixin(ABC):
     Mixin class for combinators over [`Codec`][numcodecs.abc.Codec]s.
     """
 
+    __slots__ = ()
+
     @abstractmethod
     def map(self, mapper: Callable[[Codec], Codec]) -> Codec:
         """

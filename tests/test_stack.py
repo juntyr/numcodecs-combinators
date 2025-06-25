@@ -1,6 +1,7 @@
 import numcodecs
 import numpy as np
 import xarray as xr
+from numcodecs.abc import Codec
 
 import numcodecs_combinators
 from numcodecs_combinators.stack import CodecStack
@@ -44,6 +45,39 @@ def test_encode_decode():
 
     encoded_decoded = stack.encode_decode_data_array(xr.DataArray([1.0, 2.0, 3.0]))
     assert encoded_decoded.equals(xr.DataArray([1.0, 2.0, 3.0]))
+
+    encoded_decoded = stack.encode_decode_data_array(
+        xr.DataArray([1.0, 2.0, 3.0]).chunk(1)
+    )
+    assert encoded_decoded.equals(xr.DataArray([1.0, 2.0, 3.0]))
+
+
+def test_chunked_encode_decode():
+    class CheckChunkedCodec(Codec):
+        __slots__ = ("is_chunked",)
+        is_chunked: bool
+
+        def __init__(self, is_chunked: bool):
+            self.is_chunked = is_chunked
+
+        def encode(self, buf):
+            assert getattr(buf, "chunked", False) == self.is_chunked
+            return buf
+
+        def decode(self, buf, out=None):
+            assert getattr(buf, "chunked", False) is False
+            assert getattr(out, "chunked", False) == self.is_chunked
+            return numcodecs.compat.ndarray_copy(buf, out)
+
+    stack = CodecStack(CheckChunkedCodec(False))
+
+    encoded_decoded = stack.encode_decode(np.array([1.0, 2.0, 3.0]))
+    assert np.all(encoded_decoded == np.array([1.0, 2.0, 3.0]))
+
+    encoded_decoded = stack.encode_decode_data_array(xr.DataArray([1.0, 2.0, 3.0]))
+    assert encoded_decoded.equals(xr.DataArray([1.0, 2.0, 3.0]))
+
+    stack = CodecStack(CheckChunkedCodec(True))
 
     encoded_decoded = stack.encode_decode_data_array(
         xr.DataArray([1.0, 2.0, 3.0]).chunk(1)
