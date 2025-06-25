@@ -1,0 +1,2 @@
+[default.extend-identifiers]
+_MaybeChunkedNdArray = "_MaybeChunkedNdArray"
