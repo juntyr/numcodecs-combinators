@@ -24,6 +24,7 @@ plugins:
       source_dirs:
         - nav_heading: [Documentation]
           base: src
+          ignore: ["_chunked.py"]
   - exclude:
       glob:
         - requirements.txt

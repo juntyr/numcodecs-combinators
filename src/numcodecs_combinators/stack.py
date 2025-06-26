@@ -19,6 +19,7 @@ except ImportError:
 
 from numcodecs.abc import Codec
 
+from ._chunked import ChunkedNdArray
 from .abc import CodecCombinatorMixin
 
 
@@ -89,11 +90,22 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             protocol.
         """
 
+        if len(self) == 0:
+            return buf
+
+        chunked = getattr(buf, "chunked", False)
+
         encoded = buf
         for codec in self:
-            encoded = codec.encode(
+            encoded_ndarray = np.asarray(
                 numcodecs.compat.ensure_contiguous_ndarray_like(encoded, flatten=False)
             )
+            encoded = codec.encode(
+                ChunkedNdArray(encoded_ndarray) if chunked else encoded_ndarray
+            )
+
+        if getattr(encoded, "chunked", False):
+            return np.array(encoded).view(np.ndarray)  # type: ignore
         return encoded
 
     def decode(self, buf: Buffer, out: Optional[Buffer] = None) -> Buffer:
@@ -151,7 +163,7 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             silhouettes.append((encoded.shape, encoded.dtype))
             encoded = np.asarray(
                 numcodecs.compat.ensure_contiguous_ndarray_like(
-                    codec.encode(_MaybeChunkedNdArray(encoded) if chunked else encoded),
+                    codec.encode(ChunkedNdArray(encoded) if chunked else encoded),
                     flatten=False,
                 )
             )
@@ -162,12 +174,13 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             shape, dtype = silhouettes.pop()
             out = np.empty(shape=shape, dtype=dtype)
             decoded = (
-                codec.decode(decoded, _MaybeChunkedNdArray(out) if chunked else out)
+                codec.decode(decoded, ChunkedNdArray(out) if chunked else out)
                 .view(dtype)
                 .reshape(shape)
             )
 
-        decoded = decoded.view(np.ndarray)
+        if getattr(decoded, "chunked", False):
+            decoded = decoded.view(np.ndarray)
 
         if isinstance(decoded, type(buf)):
             return decoded
@@ -205,7 +218,8 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
 
         import xarray as xr
 
-        chunked = da.chunks is not None
+        if da.chunks is None:
+            return da.copy(data=self.encode_decode(da.values))  # type: ignore
 
         def encode_decode_data_array_single_chunk(
             da: xr.DataArray,
@@ -217,7 +231,7 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
                 return da.copy(deep=False).chunk(single_chunk)
 
             # eagerly compute the input chunk and encode and decode it
-            decoded = self.encode_decode(_MaybeChunkedNdArray(da.values, chunked))  # type: ignore
+            decoded = self.encode_decode(ChunkedNdArray(da.values))  # type: ignore
 
             return da.copy(deep=False, data=np.array(decoded).view(np.ndarray)).chunk(
                 single_chunk
@@ -307,22 +321,3 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
 
 
 numcodecs.registry.register_codec(CodecStack)
-
-
-class _MaybeChunkedNdArray(np.ndarray):
-    __slots__ = ("_chunked",)
-    _chunked: bool
-
-    def __new__(cls, array, chunked: bool = True):
-        obj = np.asarray(array).view(cls)
-        obj._chunked = chunked
-        return obj
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
-        self._chunked = getattr(obj, "chunked", True)
-
-    @property
-    def chunked(self) -> bool:
-        return self._chunked

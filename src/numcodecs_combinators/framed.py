@@ -16,6 +16,7 @@ import varint
 from numcodecs.abc import Codec
 from typing_extensions import Buffer, Self  # MSPV 3.12
 
+from ._chunked import ChunkedNdArray
 from .abc import CodecCombinatorMixin
 
 
@@ -74,6 +75,8 @@ class FramedCodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             Encoded and framed data as a bytestring.
         """
 
+        chunked = getattr(buf, "chunked", False)
+
         encoded = buf
         encoded_ndarray = np.asarray(
             numcodecs.compat.ensure_contiguous_ndarray_like(encoded, flatten=False)
@@ -82,7 +85,9 @@ class FramedCodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
         frames = [(encoded_ndarray.dtype, encoded_ndarray.shape)]
 
         for codec in self:
-            encoded = codec.encode(encoded_ndarray)
+            encoded = codec.encode(
+                ChunkedNdArray(encoded_ndarray) if chunked else encoded_ndarray
+            )
             encoded_ndarray = np.asarray(
                 numcodecs.compat.ensure_contiguous_ndarray_like(encoded, flatten=False)
             )
@@ -132,6 +137,8 @@ class FramedCodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             buffer protocol.
         """
 
+        chunked = getattr(out, "chunked", False)
+
         b = numcodecs.compat.ensure_bytes(buf)
 
         b_io = BytesIO(b)
@@ -165,10 +172,11 @@ class FramedCodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             decoded = decoded.byteswap()
 
         for codec, (dtype, shape) in zip(reversed(self), frames[:-1][::-1]):
+            empty = np.empty(shape, dtype)
             decoded = (
                 codec.decode(
                     decoded,
-                    out=np.empty(shape, dtype),
+                    out=ChunkedNdArray(empty) if chunked else empty,
                 )
                 .view(dtype)
                 .reshape(shape)

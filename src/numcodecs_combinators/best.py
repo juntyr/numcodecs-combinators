@@ -70,7 +70,9 @@ class PickBestCodec(Codec, CodecCombinatorMixin, tuple[Codec]):
         if len(self) == 0:
             return buf
 
-        data = numcodecs.compat.ensure_ndarray(buf)
+        data = (
+            buf if isinstance(buf, np.ndarray) else numcodecs.compat.ensure_ndarray(buf)
+        )
 
         best_size = np.inf
         best_index = None
