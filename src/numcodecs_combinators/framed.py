@@ -5,7 +5,6 @@ This module defines the [`FramedCodecStack`][numcodecs_combinators.framed.Framed
 __all__ = ["FramedCodecStack"]
 
 from io import BytesIO
-from sys import byteorder
 from typing import Callable, Optional
 
 import numcodecs
@@ -94,15 +93,9 @@ class FramedCodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             frames.append((encoded_ndarray.dtype, encoded_ndarray.shape))
 
         # convert the encoded array to little endian bytes
-        encoded_byteorder = encoded_ndarray.dtype.byteorder
-        encoded_byteorder = (
-            encoded_byteorder
-            if encoded_byteorder in ("<", ">")
-            else ("<" if (byteorder == "little") else ">")
-        )
-        if encoded_byteorder != "<":
-            encoded_ndarray = encoded_ndarray.byteswap()
-        encoded_bytes = encoded_ndarray.tobytes()
+        encoded_bytes = encoded_ndarray.astype(
+            encoded_ndarray.dtype.newbyteorder("<")
+        ).tobytes()
 
         message = [varint.encode(len(frames))]
 
@@ -157,19 +150,15 @@ class FramedCodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             frames.append((dtype, shape))
 
         # read the decoded array from the little endian bytes
-        decoded = np.frombuffer(
-            b_io.read(np.prod(shape, dtype=int) * dtype.itemsize),
-            dtype=dtype.newbyteorder("<"),
-            count=np.prod(shape, dtype=int),
-        ).reshape(shape)
-        dtype_byteorder = dtype.byteorder
-        dtype_byteorder = (
-            dtype_byteorder
-            if dtype_byteorder in ("<", ">")
-            else ("<" if (byteorder == "little") else ">")
+        decoded = (
+            np.frombuffer(
+                b_io.read(np.prod(shape, dtype=int) * dtype.itemsize),
+                dtype=dtype.newbyteorder("<"),
+                count=np.prod(shape, dtype=int),
+            )
+            .astype(dtype)
+            .reshape(shape)
         )
-        if dtype_byteorder != "<":
-            decoded = decoded.byteswap()
 
         for codec, (dtype, shape) in zip(reversed(self), frames[:-1][::-1]):
             empty = np.empty(shape, dtype)

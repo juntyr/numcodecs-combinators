@@ -1,7 +1,7 @@
 [![image](https://img.shields.io/github/actions/workflow/status/juntyr/numcodecs-combinators/ci.yml?branch=main)](https://github.com/juntyr/numcodecs-combinators/actions/workflows/ci.yml?query=branch%3Amain)
 [![image](https://img.shields.io/pypi/v/numcodecs-combinators.svg)](https://pypi.python.org/pypi/numcodecs-combinators)
 [![image](https://img.shields.io/pypi/l/numcodecs-combinators.svg)](https://github.com/juntyr/numcodecs-combinators/blob/main/LICENSE)
-[![image](https://img.shields.io/pypi/pyversions/numcodecs-combinators.svg)](https://pypi.python.org/pypi/numcodecs-combinators)
+[![image](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fjuntyr%2Fnumcodecs-combinators%2Frefs%2Fheads%2Fmain%2Fpyproject.toml)](https://pypi.python.org/pypi/numcodecs-combinators)
 [![image](https://readthedocs.org/projects/numcodecs-combinators/badge/?version=latest)](https://numcodecs-combinators.readthedocs.io/en/latest/?badge=latest)
 
 # numcodecs-combinators

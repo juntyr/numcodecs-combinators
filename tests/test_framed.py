@@ -36,7 +36,12 @@ def test_encode_decode():
             b"abc",
             np.array(3),
             np.linspace(1, 100, 100).reshape(10, 10),
-            np.linspace(1, 100, 100).reshape(10, 10).byteswap(),
+            np.linspace(1, 100, 100)
+            .reshape(10, 10)
+            .astype(np.dtype(np.float64).newbyteorder("<")),
+            np.linspace(1, 100, 100)
+            .reshape(10, 10)
+            .astype(np.dtype(np.float64).newbyteorder(">")),
         ]:
             encoded = stack.encode(data)
             assert isinstance(encoded, bytes)
