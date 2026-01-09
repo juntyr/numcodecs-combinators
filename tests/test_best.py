@@ -50,7 +50,7 @@ def test_encode_decode():
         ]:
             encoded = best.encode(data)
             if len(best) > 0:
-                assert isinstance(encoded, bytes)
+                assert isinstance(encoded, bytes | bytearray)
             decoded = best.decode(encoded)
             print(best)
             assert np.all(decoded == data)

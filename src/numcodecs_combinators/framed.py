@@ -7,11 +7,11 @@ __all__ = ["FramedCodecStack"]
 from io import BytesIO
 from typing import Callable, Optional
 
+import leb128
 import numcodecs
 import numcodecs.compat
 import numcodecs.registry
 import numpy as np
-import varint
 from numcodecs.abc import Codec
 from typing_extensions import Buffer, Self  # MSPV 3.12
 
@@ -97,15 +97,15 @@ class FramedCodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
             encoded_ndarray.dtype.newbyteorder("<")
         ).tobytes()
 
-        message = [varint.encode(len(frames))]
+        message: list[bytes | bytearray] = [leb128.u.encode(len(frames))]
 
         for dtype, shape in frames:
-            message.append(varint.encode(len(dtype.str)))
+            message.append(leb128.u.encode(len(dtype.str)))
             message.append(dtype.str.encode("ascii"))
 
-            message.append(varint.encode(len(shape)))
+            message.append(leb128.u.encode(len(shape)))
             for s in shape:
-                message.append(varint.encode(s))
+                message.append(leb128.u.encode(s))
 
         message.append(encoded_bytes)
 
@@ -136,16 +136,17 @@ class FramedCodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
 
         b_io = BytesIO(b)
 
-        n_frames = varint.decode_stream(b_io)
+        n_frames, _ = leb128.u.decode_reader(b_io)
         assert n_frames == len(self) + 1, (
             f"encoded data must contain {len(self) + 1} frames, found {n_frames}"
         )
 
         frames = []
         for _ in range(n_frames):
-            dtype = np.dtype(b_io.read(varint.decode_stream(b_io)).decode("ascii"))
+            dtype = np.dtype(b_io.read(leb128.u.decode_reader(b_io)[0]).decode("ascii"))
             shape = tuple(
-                varint.decode_stream(b_io) for _ in range(varint.decode_stream(b_io))
+                leb128.u.decode_reader(b_io)[0]
+                for _ in range(leb128.u.decode_reader(b_io)[0])
             )
             frames.append((dtype, shape))
 

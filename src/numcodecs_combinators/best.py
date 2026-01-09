@@ -7,11 +7,11 @@ __all__ = ["PickBestCodec"]
 from io import BytesIO
 from typing import Callable, Optional
 
+import leb128
 import numcodecs
 import numcodecs.compat
 import numcodecs.registry
 import numpy as np
-import varint
 from numcodecs.abc import Codec
 from typing_extensions import Buffer, Self  # MSPV 3.12
 
@@ -90,7 +90,10 @@ class PickBestCodec(Codec, CodecCombinatorMixin, tuple[Codec]):
                 best_index = i
                 best_encoded = encoded
 
-        encoded_index = varint.encode(best_index)
+        assert best_index is not None
+        assert best_encoded is not None
+
+        encoded_index = leb128.u.encode(best_index)
         encoded_bytes = numcodecs.compat.ensure_bytes(best_encoded)
 
         if len(self) == 1:
@@ -126,7 +129,7 @@ class PickBestCodec(Codec, CodecCombinatorMixin, tuple[Codec]):
         if len(self) == 1:
             best_index = 0
         else:
-            best_index = varint.decode_stream(b_io)
+            best_index, _ = leb128.u.decode_reader(b_io)
 
         return self[best_index].decode(b_io.read(), out=out)
 
