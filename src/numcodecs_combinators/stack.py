@@ -4,13 +4,19 @@ This module defines the [`CodecStack`][numcodecs_combinators.stack.CodecStack] c
 
 __all__ = ["CodecStack"]
 
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 import numcodecs
 import numcodecs.compat
 import numcodecs.registry
 import numpy as np
 from typing_extensions import Buffer, Self  # MSPV 3.12
+
+if TYPE_CHECKING:
+    try:
+        import xarray as xr
+    except ImportError:
+        pass
 
 from numcodecs.abc import Codec
 
