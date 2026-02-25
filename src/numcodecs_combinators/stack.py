@@ -12,11 +12,6 @@ import numcodecs.registry
 import numpy as np
 from typing_extensions import Buffer, Self  # MSPV 3.12
 
-try:
-    import xarray as xr
-except ImportError:
-    pass
-
 from numcodecs.abc import Codec
 
 from ._chunked import ChunkedNdArray
