@@ -85,6 +85,13 @@ def test_chunked_encode_decode():
     assert encoded_decoded.equals(xr.DataArray([1.0, 2.0, 3.0]))
 
 
+def test_chunked_encode_decode_non_contiguous():
+    da = xr.DataArray(np.zeros((100, 100)), dims=["a", "b"])
+    da_chunked = da.chunk(a=7, b=7)
+
+    CodecStack().encode_decode_data_array(da_chunked).compute()
+
+
 def test_map():
     stack = CodecStack(numcodecs.Zlib(level=9), numcodecs.CRC32())
 

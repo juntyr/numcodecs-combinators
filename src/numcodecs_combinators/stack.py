@@ -232,7 +232,12 @@ class CodecStack(Codec, CodecCombinatorMixin, tuple[Codec]):
                 return da.copy(deep=False).chunk(single_chunk)
 
             # eagerly compute the input chunk and encode and decode it
-            decoded = self.encode_decode(ChunkedNdArray(da.values))  # type: ignore
+            decoded = self.encode_decode(
+                ChunkedNdArray(  # type: ignore
+                    # ensure that the array is contiguous, copying if necessary
+                    np.ascontiguousarray(da.values).reshape(da.shape)
+                )
+            )
 
             return da.copy(deep=False, data=np.array(decoded).view(np.ndarray)).chunk(
                 single_chunk
