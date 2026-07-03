@@ -14,7 +14,6 @@ provided:
 
 __all__ = ["map_codec"]
 
-import functools
 from typing import Callable
 
 from numcodecs.abc import Codec
@@ -43,7 +42,19 @@ def map_codec(codec: Codec, mapper: Callable[[Codec], Codec]) -> Codec:
     mapped : Codec
         The mapped codec.
     """
-    if isinstance(codec, abc.CodecCombinatorMixin):
-        codec = codec.map(functools.partial(map_codec, mapper=mapper))
+    return _RecursiveMapper(mapper)(codec)
 
-    return mapper(codec)
+
+# recursively apply the mapper to inner codecs
+# without creating ever more nested lambdas
+class _RecursiveMapper:
+    __slots__: tuple[str, ...] = ("_mapper",)
+    _mapper: Callable[[Codec], Codec]
+
+    def __init__(self, mapper: Callable[[Codec], Codec]) -> None:
+        self._mapper = mapper
+
+    def __call__(self, codec: Codec) -> Codec:
+        if isinstance(codec, abc.CodecCombinatorMixin):
+            codec = codec.map(self)
+        return self._mapper(codec)
